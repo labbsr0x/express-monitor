@@ -1,0 +1,30 @@
+{
+  "name": "express-monitor",
+  "version": "0.0.1",
+  "description": "A Prometheus middleware to add basic but very useful metrics for your Express JS app.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/labbsr0x/express-monitor.git"
+  },
+  "keywords": [
+    "expressjs",
+    "prometheus",
+    "metrics"
+  ],
+  "author": "Labbsr0x",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/labbsr0x/express-monitor/issues"
+  },
+  "homepage": "https://github.com/labbsr0x/express-monitor#readme",
+  "dependencies": {
+    "prom-client": "^11.5.3"
+  }
+}
