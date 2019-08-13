@@ -6,14 +6,14 @@ A Prometheus middleware to add basic but very useful metrics for your Express JS
 Add this package as a dependency:
 
 ```
-npm i -P github.com/labbsr0x/express-monitor
+npm i -P labbsr0x/express-monitor
 ```
 
 Use it as a middleware:
 
 ```
-const express = require("express")
-const { Monitor } = require("labbsr0x/express-monitor");
+const express = require("express");
+const { Monitor } = require("express-monitor");
 
 const app = express();
 Monitor.init(app, true); // the 'true' argument exposes default NodeJS metrics as well
