@@ -1,5 +1,5 @@
 {
-  "name": "express-monitor",
+  "name": "@labbsr0x/express-monitor",
   "version": "0.0.1",
   "description": "A Prometheus middleware to add basic but very useful metrics for your Express JS app.",
   "main": "index.js",
@@ -26,5 +26,6 @@
   "homepage": "https://github.com/labbsr0x/express-monitor#readme",
   "dependencies": {
     "prom-client": "^11.5.3"
-  }
+  },
+  "devDependencies": {}
 }
