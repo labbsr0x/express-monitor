@@ -7,7 +7,7 @@ A Prometheus middleware to add basic but very useful metrics for your Express JS
 The only exposed metrics (for now) are the following:
 
 ```
-http_requests_second{status, method, url, bucket}
+http_requests_second{status, method, url, le}
 http_requests_second_count{status, method, url}
 http_requests_second_sum{status, method, url}
 http_response_size_bytes{method, url}
@@ -17,7 +17,7 @@ Where, for a specific request, `status` registers the response HTTP status, `met
 
 In detail:
 
-1. The `http_requests_second` metric defines the histogram of how many requests are falling into the well defined buckets represented by the label `bucket`;
+1. The `http_requests_second` metric defines the histogram of how many requests are falling into the well defined buckets represented by the label `le`;
 
 2. The `http_requests_second_count` is a counter that counts the overall number of requests with those exact label occurrences;
 
