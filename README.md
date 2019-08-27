@@ -1,5 +1,21 @@
 # express-monitor
+
 A Prometheus middleware to add basic but very useful metrics for your Express JS app.
+
+# Metrics
+
+The only exposed metrics (for now) are the following:
+
+```
+http_requests_second{status, method, url, bucket}
+http_requests_secont_count{status, method, url}
+http_requests_secont_sum{status, method, url}
+http_response_size_bytes{method, url}
+```
+
+Where, for a specific request, `status` registers the response HTTP status, `method` registers the HTTP method and `url` registers the requested endpoint.
+
+
 
 # How To
 
