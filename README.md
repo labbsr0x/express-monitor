@@ -24,15 +24,19 @@ In detail:
 
 3. The `http_requests_second_sum` is a counter that counts the overall sum of how long the requests with those exact label occurrences are taking;
 
-4. Finally, the `http_response_size_bytes` is a gauge that computes how much data is being sent back to the user for a given request.
+4. The `http_response_size_bytes` is a gauge that computes how much data is being sent back to the user for a given request;
 
-# How To
+5. Finally, the `dependecy_up` is a metric to register weather a specific depedency is up (1) or down (0);
+
+# How to
 
 Add this package as a dependency:
 
 ```
 npm i -P @labbsr0x/express-monitor
 ```
+
+## HTTP Metrics
 
 Use it as middleware:
 
@@ -52,6 +56,23 @@ const promclient = Monitor.init(app, true, [0.1]); // where only one bucket (of 
 ```
 
 **Important**: This middleware requires to be put first in the middleware chain, so it can capture metrics from all possible requests.
+
+## Dependency Metrics
+
+Just provide a health check callback to be `watchDependencies` function:
+
+```js
+const { Monitor } = require("@labbsr0x/express-monitor");
+
+Monitor.watchDependencies(() => {
+    // here you implement the logic to go after your dependencies and check their health
+    // the return must be an array of HealthCheckResult{name, status}
+    return [
+        { name: "Fake dependency 1", up: true}, 
+        { name: "Fake dependency 2", up: false}
+    ]
+});
+```
 
 Now run your app and point prometheus to the `/metrics` endpoint of your server.
 
