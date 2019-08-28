@@ -11,6 +11,7 @@ http_requests_second{status, method, url, le}
 http_requests_second_count{status, method, url}
 http_requests_second_sum{status, method, url}
 http_response_size_bytes{method, url}
+dependency_up{name}
 ```
 
 Where, for a specific request, `status` registers the response HTTP status, `method` registers the HTTP method and `url` registers the requested endpoint.

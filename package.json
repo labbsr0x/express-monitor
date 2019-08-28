@@ -1,6 +1,6 @@
 {
   "name": "@labbsr0x/express-monitor",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "A Prometheus middleware to add basic but very useful metrics for your Express JS app.",
   "main": "index.js",
   "directories": {
