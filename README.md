@@ -64,18 +64,33 @@ Just provide a health check callback to be `watchDependencies` function:
 ```js
 const { Monitor } = require("@labbsr0x/express-monitor");
 
-Monitor.watchDependencies(() => {
+// A RegisterDepedencyMetricsCallback will be automatically injected into the HealthCheckCallback
+Monitor.watchDependencies((register) => {
     // here you implement the logic to go after your dependencies and check their health
     // the return must be an array of HealthCheckResult{name, status}
-    return [
-        { name: "Fake dependency 1", up: true}, 
-        { name: "Fake dependency 2", up: false}
-    ]
+    register({ name: "Fake dependency 1", up: true});
+    register({ name: "Fake dependency 2", up: false});
 });
 ```
 
 Now run your app and point prometheus to the `/metrics` endpoint of your server.
 
 More details on how Prometheus works, you can find it [here](https://medium.com/ibm-ix/white-box-your-metrics-now-895a9e9d34ec).
+
+# Example
+
+In the `example` folder, you'll find a very simple but useful example to get you started. On your terminal, navigate to the folder and type:
+
+```
+npm i
+```
+
+and then
+
+```
+npm start
+```
+
+On your browser, go to `localhost:3000` and then go to `localhost:3000/metrics` to see the exposed metrics.
 
 

@@ -6,16 +6,14 @@ const app = express();
 Monitor.init(app, true, [0.1, 1]);
 
 // inits a routine to expose health metrics
-Monitor.watchDependencies(() => {
-    return [
-        { name: "Fake dependency 1", up: true},
-        { name: "Fake dependency 2", up: false}
-    ]
+Monitor.watchDependencies((register) => {
+    register({ name: "Fake dependency 1", up: true});
+    register({ name: "Fake dependency 2", up: false});
 });
 
 // exposes an test api
 app.get("/", (req, res, next) => {
-    res.send({"ok": true});
+    res.json({"ok": true});
 })
 
 // launches the service
