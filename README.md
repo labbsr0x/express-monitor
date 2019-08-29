@@ -10,7 +10,7 @@ The only exposed metrics (for now) are the following:
 http_requests_second{status, method, url, le}
 http_requests_second_count{status, method, url}
 http_requests_second_sum{status, method, url}
-http_response_size_bytes{method, url}
+http_response_size_bytes{status, method, url}
 dependency_up{name}
 ```
 
