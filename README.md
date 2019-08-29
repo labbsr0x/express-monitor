@@ -24,7 +24,7 @@ In detail:
 
 3. The `http_requests_second_sum` is a counter that counts the overall sum of how long the requests with those exact label occurrences are taking;
 
-4. The `http_response_size_bytes` is a gauge that computes how much data is being sent back to the user for a given request. It captures the response size from the `content-length` response header. If there is no such header, the value exposed as metric will be zero;
+4. The `http_response_size_bytes` is a counter that computes how much data is being sent back to the user for a given request type. It captures the response size from the `content-length` response header. If there is no such header, the value exposed as metric will be zero;
 
 5. Finally, the `dependecy_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
 
