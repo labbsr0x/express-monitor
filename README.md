@@ -26,7 +26,7 @@ In detail:
 
 4. The `http_response_size_bytes` is a gauge that computes how much data is being sent back to the user for a given request;
 
-5. Finally, the `dependecy_up` is a metric to register weather a specific depedency is up (1) or down (0);
+5. Finally, the `dependecy_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
 
 # How to
 
