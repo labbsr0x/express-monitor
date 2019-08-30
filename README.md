@@ -42,7 +42,7 @@ Use it as middleware:
 
 ```js
 const express = require("express");
-const Monitor = require("@labbsr0x/express-monitor");
+const { Monitor } = require("@labbsr0x/express-monitor");
 
 const app = express();
 Monitor.init(app, true); // the 'true' argument exposes default NodeJS metrics as well
