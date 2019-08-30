@@ -11,8 +11,15 @@ Monitor.watchDependencies((register) => {
     register({ name: "Fake dependency 2", up: false});
 });
 
+var myGauge = new Monitor.promclient.Gauge({
+    name: "my_gauge",
+    help: "records my custom gauge metric",
+    labelNames: [ "example_label" ]
+});
+
 // exposes an test api
 app.get("/", (req, res, next) => {
+    myGauge.set({"example_label":"value"}, Math.random(100));
     res.json({"ok": true});
 })
 

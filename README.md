@@ -26,14 +26,14 @@ In detail:
 
 4. The `http_response_size_bytes` is a counter that computes how much data is being sent back to the user for a given request type. It captures the response size from the `content-length` response header. If there is no such header, the value exposed as metric will be zero;
 
-5. Finally, the `dependecy_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
+5. Finally, `dependecy_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
 
 # How to
 
 Add this package as a dependency:
 
 ```
-npm i -P @labbsr0x/express-monitor
+npm i -P @labbsr0x/express-monitor@1.1.0
 ```
 
 ## HTTP Metrics
@@ -42,20 +42,36 @@ Use it as middleware:
 
 ```js
 const express = require("express");
-const { Monitor } = require("@labbsr0x/express-monitor");
+const Monitor = require("@labbsr0x/express-monitor");
 
 const app = express();
-const promclient = Monitor.init(app, true); // the 'true' argument exposes default NodeJS metrics as well; the promclient allows you to add custom metrics to the same prometheus registry
+Monitor.init(app, true); // the 'true' argument exposes default NodeJS metrics as well
 ```
 
 One can optionally define the buckets of observation for the `http_requests_second` histogram by doing:
 
 ```js
 ...
-const promclient = Monitor.init(app, true, [0.1]); // where only one bucket (of 100ms) will be given as output in the /metrics endpoint
+Monitor.init(app, true, [0.1]); // where only one bucket (of 100ms) will be given as output in the /metrics endpoint
 ```
 
-**Important**: This middleware requires to be put first in the middleware chain, so it can capture metrics from all possible requests.
+`Monitor` also comes with a `promclient` so you can expose your custom prometheus metrics:
+
+```js
+// below we define a Gauge metric
+var myGauge = new Monitor.promclient.Gauge({
+    name: "my_gauge",
+    help: "records my custom gauge metric",
+    labelNames: [ "example_label" ]
+});
+
+...
+
+// and here we add a metric event that will be automatically exposed to /metrics endpoint
+myGauge.set({"example_label":"value"}, 220);
+```
+
+**Important**: This middleware requires to be put first in the middleware execution chain, so it can capture metrics from all possible requests.
 
 ## Dependency Metrics
 
