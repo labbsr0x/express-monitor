@@ -1,4 +1,5 @@
 const express = require("express");
+const promClient = require("prom-client");
 const Monitor = require('../lib/monitor')
 const app = express();
 
