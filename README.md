@@ -7,10 +7,10 @@ A Prometheus middleware to add basic but very useful metrics for your Express JS
 The only exposed metrics (for now) are the following:
 
 ```
-http_requests_second{status, method, url, le}
-http_requests_second_count{status, method, url}
-http_requests_second_sum{status, method, url}
-http_response_size_bytes{status, method, url}
+request_second_bucket{status, method, url, le}
+request_second_count{status, method, url}
+request_second_sum{status, method, url}
+response_size_bytes{status, method, url}
 dependency_up{name}
 ```
 
@@ -18,15 +18,15 @@ Where, for a specific request, `status` registers the response HTTP status, `met
 
 In detail:
 
-1. The `http_requests_second` metric defines the histogram of how many requests are falling into the well defined buckets represented by the label `le`;
+1. The `request_second_bucket` metric defines the histogram of how many requests are falling into the well defined buckets represented by the label `le`;
 
-2. The `http_requests_second_count` is a counter that counts the overall number of requests with those exact label occurrences;
+2. The `request_second_count` is a counter that counts the overall number of requests with those exact label occurrences;
 
-3. The `http_requests_second_sum` is a counter that counts the overall sum of how long the requests with those exact label occurrences are taking;
+3. The `request_second_sum` is a counter that counts the overall sum of how long the requests with those exact label occurrences are taking;
 
-4. The `http_response_size_bytes` is a counter that computes how much data is being sent back to the user for a given request type. It captures the response size from the `content-length` response header. If there is no such header, the value exposed as metric will be zero;
+4. The `response_size_bytes` is a counter that computes how much data is being sent back to the user for a given request type. It captures the response size from the `content-length` response header. If there is no such header, the value exposed as metric will be zero;
 
-5. Finally, `dependecy_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
+5. Finally, `dependency_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
 
 # How to
 
@@ -48,7 +48,7 @@ const app = express();
 Monitor.init(app, true); // the 'true' argument exposes default NodeJS metrics as well
 ```
 
-One can optionally define the buckets of observation for the `http_requests_second` histogram by doing:
+One can optionally define the buckets of observation for the `request_second` histogram by doing:
 
 ```js
 ...
