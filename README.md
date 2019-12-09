@@ -7,14 +7,14 @@ A Prometheus middleware to add basic but very useful metrics for your Express JS
 The only exposed metrics (for now) are the following:
 
 ```
-request_seconds_bucket{type,status, method, addr, le}
-request_seconds_count{type, status, method, addr}
-request_seconds_sum{type, status, method, addr}
-response_size_bytes{type, status, method, addr}
+request_seconds_bucket{type,status, method, addr, version, isError, le}
+request_seconds_count{type, status, method, addr, version, isError}
+request_seconds_sum{type, status, method, addr, version, isError}
+response_size_bytes{type, status, method, addr, version, isError}
 dependency_up{name}
 ```
 
-Where, for a specific request, `type` tells which request protocol was used (e.g. `grpc` or `http`), `status` registers the response HTTP status, `method` registers the request method and `addr` registers the requested endpoint address.
+Where, for a specific request, `type` tells which request protocol was used (e.g. `grpc` or `http`), `status` registers the response HTTP status, `method` registers the request method, `addr` registers the requested endpoint address, `version` tells which version of your app handled the request and `isError` lets us know if the status code reported is an error or not.
 
 In detail:
 
@@ -33,7 +33,7 @@ In detail:
 Add this package as a dependency:
 
 ```
-npm i -P @labbsr0x/express-monitor@2.0.2
+npm i -P @labbsr0x/express-monitor@2.1.0
 ```
 
 ## HTTP Metrics
