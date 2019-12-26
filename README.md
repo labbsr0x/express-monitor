@@ -33,7 +33,7 @@ In detail:
 Add this package as a dependency:
 
 ```
-npm i -P @labbsr0x/express-monitor@2.1.0
+npm i -P @labbsr0x/express-monitor@2.2.0
 ```
 
 ## HTTP Metrics
@@ -55,6 +55,11 @@ One can optionally define the buckets of observation for the `request_second` hi
 Monitor.init(app, true, [0.1]); // where only one bucket (of 100ms) will be given as output in the /metrics endpoint
 ```
 
+Other optional parameters are also:
+1. `version`: a semantic version string identifying the version of your application. Empty by default.
+2. `isErrorCallback`: an error callback to define what **you** consider as error. `4**` and `5**` considered as errors by default;
+3. `metricsEndpoint`: the endpoint where the metrics will be exposed. `/metrics` by default.
+
 `Monitor` also comes with a `promclient` so you can expose your custom prometheus metrics:
 
 ```js
@@ -75,10 +80,14 @@ myGauge.set({"example_label":"value"}, 220);
 
 ## Dependency Metrics
 
-Just provide a health check callback to be `watchDependencies` function:
+For you to know when a dependency is up or down, just provide a health check callback to be `watchDependencies` function:
 
 ```js
+const express = require("express");
 const { Monitor } = require("@labbsr0x/express-monitor");
+
+const app = express();
+Monitor.init(app, true);
 
 // A RegisterDepedencyMetricsCallback will be automatically injected into the HealthCheckCallback
 Monitor.watchDependencies((register) => {
@@ -88,7 +97,7 @@ Monitor.watchDependencies((register) => {
 });
 ```
 
-Now run your app and point prometheus to the `/metrics` endpoint of your server.
+Now run your app and point prometheus to the defined metrics endpoint of your server.
 
 More details on how Prometheus works, you can find it [here](https://medium.com/ibm-ix/white-box-your-metrics-now-895a9e9d34ec).
 
@@ -106,7 +115,7 @@ and then
 npm start
 ```
 
-On your browser, go to `localhost:3000` and then go to `localhost:3000/metrics` to see the exposed metrics.
+On your browser, go to `localhost:3000` and then go to `localhost:3000/example/metrics` to see the exposed metrics.
 
 # Big Brother
 

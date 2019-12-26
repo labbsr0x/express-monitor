@@ -6,7 +6,7 @@ const app = express();
 // inits the monitor with the express middleware to intercept the requests and register http metrics
 Monitor.init(app, true, [0.1, 1], "v1.0.0", (status) => {
     return (/^([345].+$).*/.exec(status)) != null // 3xx will also be considered as error
-});
+}, "/example/metrics");
 
 // inits a routine to expose health metrics
 Monitor.watchDependencies((register) => {
@@ -14,6 +14,7 @@ Monitor.watchDependencies((register) => {
     register({ name: "Fake dependency 2", up: false});
 });
 
+// defines a custom metric
 var myGauge = new Monitor.promclient.Gauge({
     name: "my_gauge",
     help: "records my custom gauge metric",
