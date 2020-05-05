@@ -119,7 +119,7 @@ Now run your app and point prometheus to the defined metrics endpoint of your se
 
 More details on how Prometheus works, you can find it [here](https://medium.com/@abilio.esteves/white-box-your-metrics-now-895a9e9d34ec).
 
-You also can monitore a dependency event. Just call addDependencyEvent and pass the right params.
+You also can monitore a dependency event. Just call collectDependencyTime and pass the right params.
 
 ```js
 Monitor.collectDependencyTime(req, res, name, type)
