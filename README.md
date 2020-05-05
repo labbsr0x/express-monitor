@@ -7,15 +7,18 @@ A Prometheus middleware to add basic but very useful metrics for your Express JS
 The only exposed metrics (for now) are the following:
 
 ```
-request_seconds_bucket{type,status, method, addr, isError, le}
-request_seconds_count{type, status, method, addr, isError}
-request_seconds_sum{type, status, method, addr, isError}
-response_size_bytes{type, status, method, addr, isError}
+request_seconds_bucket{type, status, isError, errorMessage, method, addr, le}
+request_seconds_count{type, status, isError, errorMessage, method, addr}
+request_seconds_sum{type, status, isError, errorMessage, method, addr}
+response_size_bytes{type, status, isError, errorMessage, method, addr}
 dependency_up{name}
+dependency_request_seconds_bucket{name, type, status, isError, errorMessage, method, addr, le}
+dependency_request_seconds_count{name, type, status, isError, errorMessage, method, add}
+dependency_request_seconds_sum{name, type, status, isError, errorMessage, method, add}
 application_info{version}
 ```
 
-Where, for a specific request, `type` tells which request protocol was used (e.g. `grpc` or `http`), `status` registers the response HTTP status, `method` registers the request method, `addr` registers the requested endpoint address, `version` tells which version of your app handled the request and `isError` lets us know if the status code reported is an error or not.
+Where, for a specific request, `type` tells which request protocol was used (`grpc`, `http`, etc), `status` registers the response status, `method` registers the request method, `addr` registers the requested endpoint address, `version` tells which version of your app handled the request, `isError` lets us know if the status code reported is an error or not, and `name` register the name of the dependency.
 
 In detail:
 
@@ -29,7 +32,13 @@ In detail:
 
 5. `dependency_up` is a metric to register weather a specific dependency is up (1) or down (0). The label `name` registers the dependency name;
 
-6. Finally, `application_info` holds static info of an application, such as it's semantic version number;
+6. The `dependency_request_seconds_bucket` is a metric that defines the histogram of how many requests to a specific dependency are falling into the well defined buckets represented by the label le;
+
+7. The `dependency_request_seconds_count` is a counter that counts the overall number of requests to a specific dependency;
+
+8. The `dependency_request_seconds_sum` is a counter that counts the overall sum of how long requests to a specific dependency are taking;
+
+9. Finally, `application_info` holds static info of an application, such as it's semantic version number;
 
 # How to
 
@@ -79,6 +88,12 @@ var myGauge = new Monitor.promclient.Gauge({
 myGauge.set({"example_label":"value"}, 220);
 ```
 
+It is possible to capture error messages that were saved using `res.set("Error-Message", "foo message")`. For example:
+
+```js
+res.set("Error-Message", "User not found");
+```
+
 **Important**: This middleware requires to be put first in the middleware execution chain, so it can capture metrics from all possible requests.
 
 ## Dependency Metrics
@@ -104,6 +119,11 @@ Now run your app and point prometheus to the defined metrics endpoint of your se
 
 More details on how Prometheus works, you can find it [here](https://medium.com/@abilio.esteves/white-box-your-metrics-now-895a9e9d34ec).
 
+You also can monitore a dependency event. Just call addDependencyEvent and pass the right params.
+
+```js
+Monitor.collectDependencyTime(req, res, name, type)
+```
 # Example
 
 In the `example` folder, you'll find a very simple but useful example to get you started. On your terminal, navigate to the project's root folder and type:

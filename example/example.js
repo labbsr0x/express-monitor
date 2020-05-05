@@ -24,8 +24,9 @@ var myGauge = new Monitor.promclient.Gauge({
 // exposes an test api
 app.get("/", (req, res, next) => {
     myGauge.set({"example_label":"value"}, Math.random(100));
+    res.set("Error-Message", "304 - Not Modified");
     res.json({"ok": true});
-    Monitor.collectDependencyTime("dependencyNameTest", req, res)
+    Monitor.collectDependencyTime(req, res, "dependencyNameTest", "fooType")
 })
 
 // launches the service
