@@ -117,7 +117,7 @@ Monitor.watchDependencies((register) => {
 
 Now run your app and point prometheus to the defined metrics endpoint of your server.
 
-You also can monitor a dependency event. Just call collectDependencyTime and pass the right params.
+You also can monitor a dependency event. Just call `collectDependencyTime` and pass the right params.
 
 ```js
 Monitor.collectDependencyTime(req, res, name, type)
