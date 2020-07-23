@@ -9,6 +9,14 @@ app.get('/', (req, res) => {
 	res.send('test')
 })
 
+const router = express.Router()
+
+router.get('/testRouter', (req, res) => {
+	res.send("hello")
+})
+
+app.use('/router', router)
+
 
 
 module.exports = app
