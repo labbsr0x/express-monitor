@@ -1,6 +1,6 @@
 const express = require("express");
 const promClient = require("prom-client");
-const Monitor = require('../lib/monitor')
+const { Monitor } = require('../dist/')
 const app = express();
 
 // inits the monitor with the express middleware to intercept the requests and register http metrics
