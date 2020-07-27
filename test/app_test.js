@@ -1,5 +1,5 @@
 const express =  require('express')
-const Monitor = require('../lib/monitor')
+const { Monitor } = require('../dist/')
 
 const app = express()
 

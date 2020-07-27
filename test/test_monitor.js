@@ -1,13 +1,11 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
-const Monitor = require('../lib/monitor')
+const { Monitor } = require('../dist/')
 const app = require('./app_test')
 
 chai.use(chaiHttp)
 
 const expect = chai.expect
-
-
 
 chai.should()
 
