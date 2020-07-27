@@ -1,0 +1,22 @@
+name: Node.js CI
+
+on: [push]
+
+jobs:
+  container-job:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.1, 13.7.0]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - run: npm install
+      - run: npm run build --if-present
+      - run: npm test
