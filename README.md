@@ -2,8 +2,6 @@
 
 A Prometheus middleware to add basic but very useful metrics for your Express JS app.
 
-![Node.js CI](https://github.com/labbsr0x/express-monitor/workflows/Node.js%20CI/badge.svg?branch=master)
-
 # Metrics
 
 The only exposed metrics (for now) are the following:
