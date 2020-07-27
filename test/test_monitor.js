@@ -72,4 +72,24 @@ describe('Collect metrics middleware', () => {
 				expect(res.text).to.include('response_size_bytes{type="http",status="200",method="GET",addr="/test",isError="false",errorMessage=""}')
 			})
 	})
+
+	it('should collect metric with error message', () => {
+		chai.request(app)
+			.get('/testWithErrorMessage')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err) => {
+				if(err) console.log(err)
+			})
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('request_seconds_bucket{le="0.1",type="http",status="400",method="GET",addr="/testWithErrorMessage",isError="true",errorMessage="Test Error Message"} 1')
+				expect(res.text).to.include('request_seconds_sum{type="http",status="400",method="GET",addr="/testWithErrorMessage",isError="true",errorMessage="Test Error Message"}')
+				expect(res.text).to.include('request_seconds_count{type="http",status="400",method="GET",addr="/testWithErrorMessage",isError="true",errorMessage="Test Error Message"} 1')
+				expect(res.text).to.include('response_size_bytes{type="http",status="400",method="GET",addr="/testWithErrorMessage",isError="true",errorMessage="Test Error Message"}')
+			})
+	})
 })

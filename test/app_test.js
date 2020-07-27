@@ -9,10 +9,16 @@ app.get('/test', (req, res) => {
 	res.send('test')
 })
 
+app.get('/testWithErrorMessage', (req, res) => {
+	res.status(400)
+	res.set("Error-Message", "Test Error Message")
+	res.send("test error message")
+})
+
 const router = express.Router()
 
 router.get('/testRouter', (req, res) => {
-	res.send("hello")
+	res.send("test router")
 })
 
 app.use('/router', router)
