@@ -1,7 +1,24 @@
-const promclient = require("prom-client");
+import * as promclient from "prom-client";
+import express from "express"
 
-var isCollectingMetrics = false;
-var dependencyRequestSeconds;
+let isCollectingMetrics = false;
+let dependencyRequestSeconds: promclient.Histogram;
+
+export type Monitor = {
+    init (app: express.Application, shouldCollectDefaultMetrics: boolean, buckets?: number[], version?: string, isErrorCallback?:isErrorCallback, metricsEndpoint?: string):void;
+    promclient: typeof import("prom-client");
+    watchDependencies(healthCheckCallback: HealthCheckCallback):void;
+    collectDependencyTime(request: express.Request, response: express.Response, name: string, type: "http" | "grpc" | "string"):void;
+};
+
+export type HealthCheckResult =  {
+    name: string;
+    up: boolean;
+};
+
+export type isErrorCallback = (code:number|undefined) => boolean
+export type HealthCheckCallback = (callback: HealthCheckResultCallBack) => void
+export type HealthCheckResultCallBack = (result: HealthCheckResult) => void
 
 // a gauge to observe the dependency status
 const dependencyUp = new promclient.Gauge({
@@ -19,14 +36,14 @@ const applicationInfo = new promclient.Gauge({
 /**
  * Get http response content length in bytes
  */
-function getContentLength(res) {
-    var resContentLength = "";
+function getContentLength(res: express.Response): number {
+    let resContentLength = 0;
     if ("_contentLength" in res) {
         resContentLength = res['_contentLength'];
     } else {
         // Try header
         if (res.hasHeader('content-length')) {
-            resContentLength = res.getHeader('content-length');
+            resContentLength = res.getHeader('content-length') as number;
         }
     }
     return resContentLength;
@@ -42,8 +59,8 @@ function getContentLength(res) {
  * The default isError callback for HTTP status codes. Any status 4xx and 5xx are considered errors. Other are considered success.
  * @param {string} status the HTTP status code
  */
-function defaultIsErrorCallback(status) {
-    return (/^([45].+$).*/.exec(status)) != null
+function defaultIsErrorCallback(status: number|undefined) {
+    return (/^([45].+$).*/.exec(String(status))) != null
 }
 
 /**
@@ -51,7 +68,7 @@ function defaultIsErrorCallback(status) {
  * @param {HTTP response} res the http response
  * @returns a string with the error message or empty string if error message not found.
  */
-function getErrorMessage(res){
+function getErrorMessage(res: express.Response){
     return res.get("Error-Message") ? res.get("Error-Message") : ""
 }
 
@@ -59,7 +76,7 @@ function getErrorMessage(res){
  * Ignore query string from URL
  * @param {string} url the URL to be filtered
  */
-function filterUrl(url){
+function filterUrl(url:string){
     return url.split("?")[0]
 }
 
@@ -70,11 +87,12 @@ function filterUrl(url){
  * @param {string} name the name of dependency
  * @param {string} type which request protocol was used (e.g. http, grpc, etc)
  */
-function collectDependencyTime(req, res, name, type) {
-    end = dependencyRequestSeconds.startTimer()
-    var isErr = defaultIsErrorCallback(res.statusCode);
-    var errorMsg = getErrorMessage(res);
-    var url = filterUrl(req.originalUrl)
+function collectDependencyTime(req: express.Request, res: express.Response, name: string, type: string) {
+    const end = dependencyRequestSeconds.startTimer()
+    const isErr = defaultIsErrorCallback(res.statusCode);
+    const errorMsg = getErrorMessage(res);
+    const url = filterUrl(req.originalUrl)
+
     // observes the dependency request duration
     res.once("finish", () => {
         end({
@@ -83,7 +101,7 @@ function collectDependencyTime(req, res, name, type) {
             "status": res.statusCode,
             "method": req.method,
             "addr": url,
-            "isError": isErr,
+            "isError": String(isErr),
             "errorMessage": errorMsg
         })
     })
@@ -99,7 +117,7 @@ function collectDependencyTime(req, res, name, type) {
  * @param {?String} metricsEndpoint the endpoint where the metrics will be exposed. Defaults to /metrics.
  * @returns a PromClient to allow the addition of your custom metrics
  */
-function init(app, shouldCollectDefaultMetrics, buckets, version, isErrorCallback, metricsEndpoint) {
+function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, buckets?: number[], version?: string, isErrorCallback?: isErrorCallback, metricsEndpoint?: string) {
     if (!isCollectingMetrics && app) {
         if (typeof(isErrorCallback) !== "function") {
             isErrorCallback = defaultIsErrorCallback
@@ -137,20 +155,21 @@ function init(app, shouldCollectDefaultMetrics, buckets, version, isErrorCallbac
         })
 
         // middleware to capture prometheus metrics for the request
-        app.all(/^(?!\/metrics$).*/, (req, res, next) => {
+        app.all(/^(?!\/metrics$).*/, (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let end = reqSeconds.startTimer()
             next();
             res.once("finish", () => {
-                var isErr = isErrorCallback(res.statusCode);
-                var errorMsg = getErrorMessage(res);
-                var url = filterUrl(req.originalUrl);
+                const isErr = typeof isErrorCallback === "function" ? isErrorCallback(res.statusCode) : false;
+                const errorMsg = getErrorMessage(res);
+                const url = filterUrl(req.originalUrl);
+
                 // observes the request duration
                 end({
                     "type": "http",
                     "status": res.statusCode,
                     "method": req.method,
                     "addr": url,
-                    "isError": isErr,
+                    "isError": String(isErr),
                     "errorMessage": errorMsg
                 })
 
@@ -160,7 +179,7 @@ function init(app, shouldCollectDefaultMetrics, buckets, version, isErrorCallbac
                     "status": res.statusCode,
                     "method": req.method,
                     "addr": url,
-                    "isError": isErr,
+                    "isError": String(isErr),
                     "errorMessage": errorMsg
                 }, getContentLength(res))
             });
@@ -175,8 +194,9 @@ function init(app, shouldCollectDefaultMetrics, buckets, version, isErrorCallbac
             // Probe system metrics every 5th second.
             promclient.collectDefaultMetrics({timeout: 5000});
         }
-
-        applicationInfo.set({"version": version}, 1);
+        if(version){
+            applicationInfo.set({"version": version}, 1);
+        }
     }
 }
 
@@ -202,10 +222,10 @@ function init(app, shouldCollectDefaultMetrics, buckets, version, isErrorCallbac
  * Needs to return a valid array of HealthCheckResult.
  * @param {HealthCheckCallback} healthCheck
  */
-function watchDependencies(healthCheck) {
+function watchDependencies(healthCheck: HealthCheckCallback) {
     if (typeof healthCheck === 'function') {
 
-        timer = setInterval(() => {
+        setInterval(() => {
             healthCheck(registerDependencyMetrics);
         }, 15000);
 
@@ -218,12 +238,18 @@ function watchDependencies(healthCheck) {
  * Registers the current metrics for a specific dependency
  * @param {HealthCheckResult} result  the result of health checking a specific dependency
  */
-function registerDependencyMetrics(result) {
+function registerDependencyMetrics(result: HealthCheckResult): void {
     if (result) {
         dependencyUp.set({"name": result.name}, (result.up ? 1 : 0));
     }
 }
+ const m: Monitor = {
+    init,
+    promclient,
+    watchDependencies,
+    collectDependencyTime
+}
 
-module.exports = {
-    init, promclient, watchDependencies, collectDependencyTime
-};
+export default m
+
+

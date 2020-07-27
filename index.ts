@@ -3,5 +3,6 @@
  * @module ExpressMonitor monitor
  */
 'use strict';
+import monitor from "./lib/monitor"
 
-exports.Monitor = require('./lib/monitor');
+export const Monitor = monitor

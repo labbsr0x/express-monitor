@@ -130,7 +130,7 @@ More details on how Prometheus works, you can find it [here](https://medium.com/
 In the `example` folder, you'll find a very simple but useful example to get you started. On your terminal, navigate to the project's root folder and type:
 
 ```bash
-npm i && cd example && npm i
+npm i && tsc && npm i && cd example && npm i
 ```
 
 and then
