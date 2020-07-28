@@ -45,7 +45,7 @@ In detail:
 Add this package as a dependency:
 
 ```
-npm i -P @labbsr0x/express-monitor@2.5.0
+npm i -P @labbsr0x/express-monitor@2.6.0
 ```
 
 ## HTTP Metrics
