@@ -73,16 +73,16 @@ function getErrorMessage(res: express.Response){
 }
 
 /**
- * Ignore query string from URL
- * @param {string} url the URL to be filtered
+ * Get the original registered route path from request
+ * @param {HTTP request} req the http request
  */
-function filterUrl(url:string){
-    return url.split("?")[0]
+function getRegisteredRoutePath(req: express.Request){
+    return req.baseUrl + (req.route && req.route.path ? req.route.path : '');
 }
 
 /**
  * Collect latency metric dependency_request_seconds 
- * @param {HTTP resquest} req the http request
+ * @param {HTTP request} req the http request
  * @param {HTTP response} res the http response
  * @param {string} name the name of dependency
  * @param {string} type which request protocol was used (e.g. http, grpc, etc)
@@ -91,7 +91,7 @@ function collectDependencyTime(req: express.Request, res: express.Response, name
     const end = dependencyRequestSeconds.startTimer()
     const isErr = defaultIsErrorCallback(res.statusCode);
     const errorMsg = getErrorMessage(res);
-    const url = filterUrl(req.originalUrl)
+    const url = getRegisteredRoutePath(req);
 
     // observes the dependency request duration
     res.once("finish", () => {
@@ -161,7 +161,7 @@ function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, b
             res.once("finish", () => {
                 const isErr = typeof isErrorCallback === "function" ? isErrorCallback(res.statusCode) : false;
                 const errorMsg = getErrorMessage(res);
-                const url = filterUrl(req.originalUrl);
+                const url = getRegisteredRoutePath(req)
 
                 // observes the request duration
                 end({
