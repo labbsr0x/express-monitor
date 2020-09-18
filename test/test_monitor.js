@@ -191,4 +191,44 @@ describe('Collect metrics middleware', () => {
 			})
 	})
 
+	it('should use the original requested URL in addr label and status 404 when there is no registered route for requested URL', () => {
+		chai.request(app)
+			.post('/app/unregistered-path')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err) => {
+				if(err) console.log(err)
+			})
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('request_seconds_bucket{le="0.1",type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""} 1')
+				expect(res.text).to.include('request_seconds_sum{type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""}')
+				expect(res.text).to.include('request_seconds_count{type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""} 1')
+				expect(res.text).to.include('response_size_bytes{type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""}')
+			})
+	})
+
+	it('should use the original requested URL (without query string parameters) in addr label and status 404 when there is no registered route for requested URL', () => {
+		chai.request(app)
+			.post('/unregistered-path-with-query-string?param=paramValue&name=Jhon&surname=Doe')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err) => {
+				if(err) console.log(err)
+			})
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('request_seconds_bucket{le="0.1",type="http",status="404",method="POST",addr="/unregistered-path-with-query-string",isError="true",errorMessage=""} 1')
+				expect(res.text).to.include('request_seconds_sum{type="http",status="404",method="POST",addr="/unregistered-path-with-query-string",isError="true",errorMessage=""}')
+				expect(res.text).to.include('request_seconds_count{type="http",status="404",method="POST",addr="/unregistered-path-with-query-string",isError="true",errorMessage=""} 1')
+				expect(res.text).to.include('response_size_bytes{type="http",status="404",method="POST",addr="/unregistered-path-with-query-string",isError="true",errorMessage=""}')
+			})
+	})
+
 })

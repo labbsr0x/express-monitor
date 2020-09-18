@@ -9,6 +9,7 @@ export type Monitor = {
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
     collectDependencyTime(request: express.Request, response: express.Response, name: string, type: "http" | "grpc" | "string"):void;
+    getAddress(request: express.Request):string;
 };
 
 export type HealthCheckResult =  {
@@ -73,11 +74,15 @@ function getErrorMessage(res: express.Response){
 }
 
 /**
- * Get the original registered route path from request
+ * Returns the original registered route path, if requested URL has not been registered, It returns the originalURL without query string parameters.
  * @param {HTTP request} req the http request
+ * @returns {string address}
  */
-function getRegisteredRoutePath(req: express.Request){
-    return req.baseUrl + (req.route && req.route.path ? req.route.path : '');
+function getAddress(req: express.Request) : string {
+    if (typeof req.baseUrl === "undefined") {
+        return req.originalUrl.split("?")[0];
+    }
+    return req.baseUrl + (req.route && req.route.path ? req.route.path : "");
 }
 
 /**
@@ -91,7 +96,7 @@ function collectDependencyTime(req: express.Request, res: express.Response, name
     const end = dependencyRequestSeconds.startTimer()
     const isErr = defaultIsErrorCallback(res.statusCode);
     const errorMsg = getErrorMessage(res);
-    const url = getRegisteredRoutePath(req);
+    const address = getAddress(req);
 
     // observes the dependency request duration
     res.once("finish", () => {
@@ -100,7 +105,7 @@ function collectDependencyTime(req: express.Request, res: express.Response, name
             "type": type,
             "status": res.statusCode,
             "method": req.method,
-            "addr": url,
+            "addr": address,
             "isError": String(isErr),
             "errorMessage": errorMsg
         })
@@ -161,14 +166,14 @@ function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, b
             res.once("finish", () => {
                 const isErr = typeof isErrorCallback === "function" ? isErrorCallback(res.statusCode) : false;
                 const errorMsg = getErrorMessage(res);
-                const url = getRegisteredRoutePath(req)
+                const address = getAddress(req)
 
                 // observes the request duration
                 end({
                     "type": "http",
                     "status": res.statusCode,
                     "method": req.method,
-                    "addr": url,
+                    "addr": address,
                     "isError": String(isErr),
                     "errorMessage": errorMsg
                 })
@@ -178,7 +183,7 @@ function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, b
                     "type": "http",
                     "status": res.statusCode,
                     "method": req.method,
-                    "addr": url,
+                    "addr": address,
                     "isError": String(isErr),
                     "errorMessage": errorMsg
                 }, getContentLength(res))
@@ -247,8 +252,9 @@ function registerDependencyMetrics(result: HealthCheckResult): void {
     init,
     promclient,
     watchDependencies,
-    collectDependencyTime
-}
+    collectDependencyTime,
+    getAddress
+ }
 
 export default m
 
