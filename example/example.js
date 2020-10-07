@@ -1,6 +1,7 @@
 const express = require("express");
 const promClient = require("prom-client");
-const { Monitor } = require('../dist/')
+const axios = require("axios");
+const { Monitor } = require("../dist/")
 const app = express();
 
 // inits the monitor with the express middleware to intercept the requests and register http metrics
@@ -29,7 +30,16 @@ app.get("/", (req, res, next) => {
     Monitor.collectDependencyTime(req, res, "dependencyNameTest", "fooType")
 })
 
+app.get("/axios", async (req, res) => {
+  const start = process.hrtime()
+  const response = await axios.get('http://slowwly.robertomurray.co.uk/delay/1500/url/http://www.google.co.uk')
+  Monitor.collectDependencyTime2("google", "axios", 400, "GET", "/a", true, "teste", start)
+  
+  res.json({"ok": true})
+  //Monitor.collectDependencyTime(req, res, "Google", "http")
+})
+
 // launches the service
-app.listen(3000,  () => {
+app.listen(3001,  () => {
     console.log("Started!")
 })

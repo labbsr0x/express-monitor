@@ -9,6 +9,7 @@ export type Monitor = {
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
     collectDependencyTime(request: express.Request, response: express.Response, name: string, type: "http" | "grpc" | "string"):void;
+    collectDependencyTime2(name: string, type: string, statusCode: string, method: string, addr: string, isErr: string, errorMessage: string, start: [number, number]):void;
     getAddress(request: express.Request):string;
 };
 
@@ -48,6 +49,12 @@ function getContentLength(res: express.Response): number {
         }
     }
     return resContentLength;
+}
+
+function diffTimeInSeconds(start: [number, number]) {
+  const end = process.hrtime(start)
+  const timeInSeconds = end[0] + (end[1] / 1000000000)
+  return timeInSeconds
 }
 
 /**
@@ -110,6 +117,12 @@ function collectDependencyTime(req: express.Request, res: express.Response, name
             "errorMessage": errorMsg
         })
     })
+}
+
+function collectDependencyTime2(name: string, type: string, statusCode: string, method: string, addr: string, isErr: string, errorMessage: string, start: [number, number]){
+  const elapsedSeconds = diffTimeInSeconds(start)
+  console.log(elapsedSeconds)
+  dependencyRequestSeconds.labels(name, type, statusCode, method, addr, isErr, errorMessage).observe(elapsedSeconds)
 }
 
 /**
@@ -253,6 +266,7 @@ function registerDependencyMetrics(result: HealthCheckResult): void {
     promclient,
     watchDependencies,
     collectDependencyTime,
+    collectDependencyTime2,
     getAddress
  }
 
