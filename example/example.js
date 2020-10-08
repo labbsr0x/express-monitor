@@ -38,14 +38,16 @@ app.get("/axios", async (req, res) => {
     const response = await axios.get('http://slowwly.robertomurray.co.uk/delay/500/url/http://google.com/')
     const { method, path } = response.request
     
-    Monitor.collectDependencyTime2("Google", "axios", response.status, method, path, "", start)
+    Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
     res.json({"ok": true})
   }catch(err){
     if (err.request) {
       const { method, path } = err.request._options
-      Monitor.collectDependencyTime2("Google", "axios", 404, method, path, "endpoint not found", start)
+      Monitor.collectDependencyTime("Google", "axios", 404, method, path, "endpoint not found", start)
+      res.json({"ok": false})
     }else{
-      Monitor.collectDependencyTime2("Google", "axios", 500, "GET", "/err", "server error", start)
+      Monitor.collectDependencyTime("Google", "axios", 500, "GET", "/err", "server error", start)
+      res.json({"ok": false})
     }
   }
 })

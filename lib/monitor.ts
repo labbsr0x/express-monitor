@@ -8,8 +8,7 @@ export type Monitor = {
     init (app: express.Application, shouldCollectDefaultMetrics: boolean, buckets?: number[], version?: string, isErrorCallback?:isErrorCallback, metricsEndpoint?: string):void;
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
-    collectDependencyTime(request: express.Request, response: express.Response, name: string, type: "http" | "grpc" | "string"):void;
-    collectDependencyTime2(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]):void;
+    collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]):void;
     getAddress(request: express.Request):string;
 };
 
@@ -253,7 +252,6 @@ function registerDependencyMetrics(result: HealthCheckResult): void {
     promclient,
     watchDependencies,
     collectDependencyTime,
-    collectDependencyTime2,
     getAddress
  }
 
