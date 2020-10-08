@@ -35,7 +35,7 @@ app.get("/axios", async (req, res) => {
   const start = process.hrtime()
   try{
     //using a service to create a slow request
-    const response = await axios.get('http://slowwly.robertomurray.co.uk/delay/500/url/http://google.com/')
+    const response = await axios.get('http://slowwly.robertomurray.co.uk/delay/2000/url/http://google.com/')
     const { method, path } = response.request
     
     Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
