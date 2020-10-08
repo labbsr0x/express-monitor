@@ -53,6 +53,6 @@ app.get("/axios", async (req, res) => {
 })
 
 // launches the service
-app.listen(3001,  () => {
+app.listen(3000,  () => {
     console.log("Started!")
 })
