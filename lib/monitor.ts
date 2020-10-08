@@ -9,7 +9,7 @@ export type Monitor = {
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
     collectDependencyTime(request: express.Request, response: express.Response, name: string, type: "http" | "grpc" | "string"):void;
-    collectDependencyTime2(name: string, type: string, statusCode: string, method: string, addr: string, isErr: string, errorMessage: string, start: [number, number]):void;
+    collectDependencyTime2(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]):void;
     getAddress(request: express.Request):string;
 };
 
@@ -51,6 +51,10 @@ function getContentLength(res: express.Response): number {
     return resContentLength;
 }
 
+/**
+ * Returns the diffence in seconds between a given start time and the current time
+ * @param {[number,number]} start the start time of the dependecy request
+ */
 function diffTimeInSeconds(start: [number, number]) {
   const end = process.hrtime(start)
   const timeInSeconds = end[0] + (end[1] / 1000000000)
@@ -94,35 +98,18 @@ function getAddress(req: express.Request) : string {
 
 /**
  * Collect latency metric dependency_request_seconds 
- * @param {HTTP request} req the http request
- * @param {HTTP response} res the http response
  * @param {string} name the name of dependency
  * @param {string} type which request protocol was used (e.g. http, grpc, etc)
+ * @param {number} statusCode the status code returned by the dependency request
+ * @param {string} method the method of the dependency request (e.g GET, POST, PATH, DELETE)
+ * @param {string} addr the path of the dependency request
+ * @param {string} errormessage the error message of the dependency request
+ * @param {[number,number]} start the start time of the dependecy request
  */
-function collectDependencyTime(req: express.Request, res: express.Response, name: string, type: string) {
-    const end = dependencyRequestSeconds.startTimer()
-    const isErr = defaultIsErrorCallback(res.statusCode);
-    const errorMsg = getErrorMessage(res);
-    const address = getAddress(req);
-
-    // observes the dependency request duration
-    res.once("finish", () => {
-        end({
-            "name": name,
-            "type": type,
-            "status": res.statusCode,
-            "method": req.method,
-            "addr": address,
-            "isError": String(isErr),
-            "errorMessage": errorMsg
-        })
-    })
-}
-
-function collectDependencyTime2(name: string, type: string, statusCode: string, method: string, addr: string, isErr: string, errorMessage: string, start: [number, number]){
+function collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]){
+  const isErr = defaultIsErrorCallback(statusCode);
   const elapsedSeconds = diffTimeInSeconds(start)
-  console.log(elapsedSeconds)
-  dependencyRequestSeconds.labels(name, type, statusCode, method, addr, isErr, errorMessage).observe(elapsedSeconds)
+  dependencyRequestSeconds.labels(name, type, String(statusCode), method, addr, String(isErr), errorMessage).observe(elapsedSeconds)
 }
 
 /**
