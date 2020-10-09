@@ -1,6 +1,8 @@
 const express = require("express");
 const promClient = require("prom-client");
-const { Monitor } = require('../dist/')
+const axios = require("axios");
+const { Monitor } = require("../dist/");
+const { response } = require("express");
 const app = express();
 
 // inits the monitor with the express middleware to intercept the requests and register http metrics
@@ -27,6 +29,27 @@ app.get("/", (req, res, next) => {
     res.set("Error-Message", "304 - Not Modified");
     res.json({"ok": true});
     Monitor.collectDependencyTime(req, res, "dependencyNameTest", "fooType")
+})
+
+app.get("/axios", async (req, res) => {
+  const start = process.hrtime()
+  try{
+    //using a service to create a slow request
+    const response = await axios.get('http://slowwly.robertomurray.co.uk/delay/2000/url/http://google.com/')
+    const { method, path } = response.request
+    
+    Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
+    res.json({"ok": true})
+  }catch(err){
+    if (err.request) {
+      const { method, path } = err.request._options
+      Monitor.collectDependencyTime("Google", "axios", 404, method, path, "endpoint not found", start)
+      res.json({"ok": false})
+    }else{
+      Monitor.collectDependencyTime("Google", "axios", 500, "GET", "/err", "server error", start)
+      res.json({"ok": false})
+    }
+  }
 })
 
 // launches the service

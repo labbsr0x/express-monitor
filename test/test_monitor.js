@@ -2,6 +2,7 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const { Monitor } = require('../dist/')
 const app = require('./app_test')
+const axios = require('axios');
 
 chai.use(chaiHttp)
 
@@ -231,4 +232,23 @@ describe('Collect metrics middleware', () => {
 			})
 	})
 
+  it('should collect depedency metric', async() => {
+    const start = process.hrtime()
+    const response = await axios.get('http://google.com/')
+    const { method, path } = response.request
+    Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
+    chai.request(app)
+    .get('/metrics')
+    .set('Content-Type', 'application/json')
+    .send()
+    .end((err, res) => {
+      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.3",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+      expect(res.text).to.include('dependency_request_seconds_bucket{le="1.5",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+      expect(res.text).to.include('dependency_request_seconds_bucket{le="10.5",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+      expect(res.text).to.include('dependency_request_seconds_bucket{le="+Inf",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
+      expect(res.text).to.include('dependency_request_seconds_sum{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+      expect(res.text).to.include('dependency_request_seconds_count{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
+    })
+  })
 })

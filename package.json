@@ -32,10 +32,11 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.7",
-    "typescript": "^3.9.7",
+    "axios": "^0.20.0",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "express": "^4.17.1",
-    "mocha": "^8.0.1"
+    "mocha": "^8.0.1",
+    "typescript": "^3.9.7"
   }
 }
