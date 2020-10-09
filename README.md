@@ -120,7 +120,19 @@ Now run your app and point prometheus to the defined metrics endpoint of your se
 You also can monitor a dependency event. Just call `collectDependencyTime` and pass the right params.
 
 ```js
-Monitor.collectDependencyTime(name, type, status, method, path, errorMessage, startTime)
+Monitor.collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number])
+```
+
+To properly collect the time of the dependency request, we suggest to define a variable to register the startTime right before calling the dependency, then pass it to the `collectDependencyTime` method:
+
+```js
+const start = process.hrtime()
+  try{
+    //using a service to create a slow request
+    const response = await axios.get('http://slowwly.robertomurray.co.uk/delay/2000/url/http://google.com/')
+    const { method, path } = response.request
+    
+    Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
 ```
 
 More details on how Prometheus works, you can find it [here](https://medium.com/@abilio.esteves/white-box-your-metrics-now-895a9e9d34ec).
