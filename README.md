@@ -96,6 +96,24 @@ res.set("Error-Message", "User not found");
 
 **Important**: This middleware requires to be put first in the middleware execution chain, so it can capture metrics from all possible requests.
 
+#### Manual request metrics collection
+
+Some cases you want to collect request times from requests not made by express endpoints in this cases you can use the `collectRequestTime` function.
+
+*Eg. Your app is subscribed to receive some request from a message broker and have to process it*
+
+```js
+
+const start = process.hrtime();
+
+try {
+    internalProcessFunction();
+    Monitor.collectRequestTime("amqp", 200, 'queue_to_test', start);
+} catch (err) {
+    Monitor.collectRequestTime('amqp', 500, 'queue_to_test', start, err);
+    throw err;
+}
+``` 
 ## Dependency Metrics
 
 For you to know when a dependency is up or down, just provide a health check callback to be `watchDependencies` function:

@@ -10,8 +10,8 @@ const expect = chai.expect
 
 chai.should()
 
-describe('Collect metrics middleware', () => {	
-	
+describe('Collect metrics middleware', () => {
+
 	it('should collect metric from basic route - GET', () => {
 		chai.request(app)
 			.get('/test')
@@ -250,5 +250,42 @@ describe('Collect metrics middleware', () => {
       expect(res.text).to.include('dependency_request_seconds_sum{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
       expect(res.text).to.include('dependency_request_seconds_count{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
     })
+  });
+
+  it('should collect non express request', async () => {
+  	const start = process.hrtime();
+
+  	const fakeInternalProcess = await new Promise(resolve => setTimeout(resolve, 50));
+  	Monitor.collectRequestTime('amqp', 200, 'queue_to_test', start);
+
+  	chai.request(app)
+	  .get('/metrics')
+	  .set('Content-Type', 'application/json')
+	  .send()
+	  .end((err, res) => {
+		  expect(res.text).to.include('request_seconds_bucket{le="0.1",type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""} 1');
+		  expect(res.text).to.include('request_seconds_sum{type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""}');
+		  expect(res.text).to.include('request_seconds_count{type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""} 1');
+	  })
+  });
+
+  it('should collect non express request with error', async () => {
+  	const start = process.hrtime();
+
+  	try{
+  		await new Promise((_, reject) => setTimeout(() => reject('dummy error'), 30));
+	}catch (err) {
+		Monitor.collectRequestTime('amqp', 500, 'queue_to_test', start, err)
+	}
+
+  	chai.request(app)
+	  .get('/metrics')
+	  .set('Content-Type', 'application/json')
+	  .send()
+	  .end((err, res) => {
+		  expect(res.text).to.include('request_seconds_bucket{le="0.1",type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"} 1');
+		  expect(res.text).to.include('request_seconds_sum{type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"}');
+		  expect(res.text).to.include('request_seconds_count{type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"} 1');
+	  })
   })
-})
+});
