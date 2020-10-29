@@ -3,12 +3,14 @@ import express from "express"
 
 let isCollectingMetrics = false;
 let dependencyRequestSeconds: promclient.Histogram;
+let reqSeconds: promclient.Histogram;
 
 export type Monitor = {
     init (app: express.Application, shouldCollectDefaultMetrics: boolean, buckets?: number[], version?: string, isErrorCallback?:isErrorCallback, metricsEndpoint?: string):void;
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
     collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]):void;
+    collectRequestTime(type: string, statusCode: number, addr: string, start: [number, number], errorMessage?: string): void;
     getAddress(request: express.Request):string;
 };
 
@@ -75,7 +77,7 @@ function defaultIsErrorCallback(status: number|undefined) {
 }
 
 /**
- * Get error message from the response. If error message is null, sets the string to empty. 
+ * Get error message from the response. If error message is null, sets the string to empty.
  * @param {HTTP response} res the http response
  * @returns a string with the error message or empty string if error message not found.
  */
@@ -96,7 +98,7 @@ function getAddress(req: express.Request) : string {
 }
 
 /**
- * Collect latency metric dependency_request_seconds 
+ * Collect latency metric dependency_request_seconds
  * @param {string} name the name of dependency
  * @param {string} type which request protocol was used (e.g. http, grpc, etc)
  * @param {number} statusCode the status code returned by the dependency request
@@ -106,9 +108,22 @@ function getAddress(req: express.Request) : string {
  * @param {[number,number]} start the start time of the dependecy request
  */
 function collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]){
-  const isErr = defaultIsErrorCallback(statusCode);
-  const elapsedSeconds = diffTimeInSeconds(start)
-  dependencyRequestSeconds.labels(name, type, String(statusCode), method, addr, String(isErr), errorMessage).observe(elapsedSeconds)
+    const isErr = defaultIsErrorCallback(statusCode);
+    const elapsedSeconds = diffTimeInSeconds(start)
+    dependencyRequestSeconds.labels(name, type, String(statusCode), method, addr, String(isErr), errorMessage).observe(elapsedSeconds)
+}
+
+/**
+ * Manual latency collect metric request_seconds
+ * @param {string} type which request protocol was used (e.g. http, grpc, amqp, etc)
+ * @param {number} statusCode the status code returned by the dependency request
+ * @param {string} addr the path of the dependency request
+ * @param {[number,number]} start the start time of the dependecy request
+ * @param {string} errorMessage the error message of the dependency request
+ */
+function collectRequestTime(type: string, statusCode: number, addr: string, start: [number, number], errorMessage: string){
+    const elapsedSeconds = diffTimeInSeconds(start);
+    reqSeconds.labels(type, String(statusCode), '', addr, String(!!errorMessage), errorMessage || '').observe(elapsedSeconds)
 }
 
 /**
@@ -136,7 +151,7 @@ function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, b
         console.log("Init Prometheus monitoring");
 
         // a cumulative histogram to collect http request metrics in well-defined buckets of interest
-        const reqSeconds = new promclient.Histogram({
+        reqSeconds = new promclient.Histogram({
             name: "request_seconds",
             help: "records in a histogram the number of http requests and their duration in seconds",
             buckets: buckets,
@@ -252,8 +267,9 @@ function registerDependencyMetrics(result: HealthCheckResult): void {
     promclient,
     watchDependencies,
     collectDependencyTime,
+    collectRequestTime,
     getAddress
- }
+ };
 
 export default m
 
