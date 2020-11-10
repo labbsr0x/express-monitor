@@ -90,10 +90,14 @@ function getErrorMessage(res: express.Response){
  * @param {HTTP request} req the http request
  * @returns {string address}
  */
-function getAddress(req: express.Request) : string {
+function getAddress(req: any) : string {
     if (typeof req.baseUrl === "undefined") {
         return req.originalUrl.split("?")[0];
     }
+    if (req.swagger) {
+      return req.swagger.pathName
+    }
+
     return req.baseUrl + (req.route && req.route.path ? req.route.path : "");
 }
 
