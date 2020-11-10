@@ -37,6 +37,7 @@
     "chai-http": "^4.3.0",
     "express": "^4.17.1",
     "mocha": "^8.0.1",
+    "swagger-express-middleware": "^4.0.2",
     "typescript": "^3.9.7"
   }
 }
