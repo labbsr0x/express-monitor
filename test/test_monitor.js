@@ -252,6 +252,21 @@ describe('Collect metrics middleware', () => {
     })
   });
 
+  it('should set isError to true when contains error message - collectDependencyTime', async() => {
+    const start = process.hrtime()
+    const errorMessage = "Foo error"
+    Monitor.collectDependencyTime("dependencyNameTest", "fooType", 304, "GET", "/test", errorMessage, start)
+    chai.request(app)
+	  .get('/metrics')
+	  .set('Content-Type', 'application/json')
+	  .send()
+	  .end((err, res) => {
+      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"}')
+      expect(res.text).to.include('dependency_request_seconds_sum{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"}')
+      expect(res.text).to.include('dependency_request_seconds_count{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"} 1')
+    })
+  })
+
   it('should collect non express request', async () => {
   	const start = process.hrtime();
 
