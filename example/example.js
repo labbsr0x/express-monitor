@@ -25,10 +25,10 @@ var myGauge = new Monitor.promclient.Gauge({
 
 // exposes an test api
 app.get("/", (req, res, next) => {
+    const start = process.hrtime()
     myGauge.set({"example_label":"value"}, Math.random(100));
-    res.set("Error-Message", "304 - Not Modified");
     res.json({"ok": true});
-    Monitor.collectDependencyTime(req, res, "dependencyNameTest", "fooType")
+    Monitor.collectDependencyTime("dependencyNameTest", "fooType", 304, "GET", "/db", "Not Found", start)
 })
 
 app.get("/axios", async (req, res) => {

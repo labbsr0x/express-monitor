@@ -112,9 +112,8 @@ function getAddress(req: any) : string {
  * @param {[number,number]} start the start time of the dependecy request
  */
 function collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]){
-    const isErr = defaultIsErrorCallback(statusCode);
     const elapsedSeconds = diffTimeInSeconds(start)
-    dependencyRequestSeconds.labels(name, type, String(statusCode), method, addr, String(isErr), errorMessage).observe(elapsedSeconds)
+    dependencyRequestSeconds.labels(name, type, String(statusCode), method, addr, String(!!errorMessage), errorMessage || '').observe(elapsedSeconds)
 }
 
 /**
