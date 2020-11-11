@@ -45,7 +45,7 @@ In detail:
 Add this package as a dependency:
 
 ```
-npm i -P @labbsr0x/express-monitor@2.10.0
+npm i -P @labbsr0x/express-monitor@2.11.0
 ```
 
 ## HTTP Metrics
@@ -152,6 +152,9 @@ const start = process.hrtime()
     
     Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
 ```
+
+> :warning: **NOTE**: 
+> If the errorMessage param is not provided, the isError label is automatically set to false. Thus, is required to pass a value in the errorMessage param, in order to set the isError to true.
 
 More details on how Prometheus works, you can find it [here](https://medium.com/@abilio.esteves/white-box-your-metrics-now-895a9e9d34ec).
 
