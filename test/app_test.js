@@ -1,5 +1,8 @@
 const express =  require('express')
 const { Monitor } = require('../dist/')
+const bodyParser = require('body-parser');
+const path = require('path');
+const createMiddleware = require('swagger-express-middleware');
 
 const app = express()
 
@@ -50,5 +53,32 @@ router.post('/testPath/:parameter1/action/:parameter2', (req, res) => {
 app.use('/router', router)
 
 
+const swaggerFile = path.join(__dirname, 'swagger/api/swagger-config.yml');
+createMiddleware(swaggerFile, app, (error, middleware) => {
+  if (error) {
+    console.error('Error on Swagger Express', error);
+  }
+  app.use(
+    middleware.metadata(),
+    middleware.CORS(),
+    middleware.files(),
+    middleware.parseRequest(),
+    middleware.validateRequest()
+  );
+  app.use(bodyParser.text());
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use((req, res, next) => {
+    const controllerName = req.swagger.path['x-swagger-router-controller'];
+    const operationId = req.swagger.operation['operationId'];
+    console.log(`Run ${controllerName}[${operationId}]`);
+
+    const controller = require(`./swagger/api/${controllerName}`);
+    controller[operationId](req, res);
+
+    next();
+  });
+  console.log('Swagger Express done');
+});
 
 module.exports = app

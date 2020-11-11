@@ -1,0 +1,29 @@
+swagger: "2.0"
+info:
+  description: "Sample project using Express Monitor and Express Swagger Middleware"
+  version: "1.0.0"
+  title: "Swagger Express Monitor"
+host: localhost:3003
+# basePath: /v1
+schemes:
+- "http"
+paths:
+  /users/{userId}:
+    x-swagger-router-controller: users
+    get:
+      description: "Returns all users"
+      operationId: "getAllUsers"
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user to get
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+        "404":
+          description: "Not found"
