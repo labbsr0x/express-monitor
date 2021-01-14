@@ -243,13 +243,18 @@ function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, b
  * Inits a routine to periodically watch the health of the app's dependencies.
  * Needs to return a valid array of HealthCheckResult.
  * @param {HealthCheckCallback} healthCheck
+ * @param {boolean} loopCheck a boolean parameter to deactivate loop healthcheck
  */
-function watchDependencies(healthCheck: HealthCheckCallback) {
+function watchDependencies(healthCheck: HealthCheckCallback, loopHealthCheck=true) {
     if (typeof healthCheck === 'function') {
 
-        setInterval(() => {
-            healthCheck(registerDependencyMetrics);
-        }, 15000);
+        if(loopHealthCheck) {
+            setInterval(() => {
+                healthCheck(registerDependencyMetrics);
+            }, 15000);
+        } else {
+            healthCheck(registerDependencyMetrics)
+        }
 
     } else {
         console.log("[Express Monitor][Watch Dependencies]: healthCheck callback needs to be a valid function")
