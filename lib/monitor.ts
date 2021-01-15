@@ -9,6 +9,7 @@ export type Monitor = {
     init (app: express.Application, shouldCollectDefaultMetrics: boolean, buckets?: number[], version?: string, isErrorCallback?:isErrorCallback, metricsEndpoint?: string):void;
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
+    watchDependenciesLoopOf(healthCheckCallback: HealthCheckCallback):void;
     collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]):void;
     collectRequestTime(type: string, statusCode: number, addr: string, start: [number, number], errorMessage?: string): void;
     getAddress(request: express.Request):string;
@@ -257,6 +258,19 @@ function watchDependencies(healthCheck: HealthCheckCallback) {
 }
 
 /**
+ * Inits a routine to register the health of the app's dependencies.
+ * Needs to return a valid array of HealthCheckResult.
+ * @param {HealthCheckCallback} healthCheck
+ */
+function watchDependenciesLoopOf(healthCheck: HealthCheckCallback) {
+    if (typeof healthCheck === 'function') {
+        healthCheck(registerDependencyMetrics)
+    } else {
+        console.log("[Express Monitor][Watch Dependencies Loop Of]: healthCheck callback needs to be a valid function")
+    }
+}
+
+/**
  * Registers the current metrics for a specific dependency
  * @param {HealthCheckResult} result  the result of health checking a specific dependency
  */
@@ -269,6 +283,7 @@ function registerDependencyMetrics(result: HealthCheckResult): void {
     init,
     promclient,
     watchDependencies,
+    watchDependenciesLoopOf,
     collectDependencyTime,
     collectRequestTime,
     getAddress

@@ -337,4 +337,23 @@ describe('Collect metrics middleware', () => {
 				expect(res.text).to.include('response_size_bytes{type="http",status="200",method="GET",addr="/users/{userId}",isError="false",errorMessage=""}')
       })
   })
+  
+
+  it('should collect healthcheck metrics', () => {
+	chai.request(app)
+		.get('/healthcheck')
+		.set('Content-Type', 'application/json')
+		.send()
+		.end((err) => {
+			if(err) console.log(err)
+		})
+	chai.request(app)
+		.get('/metrics')
+		.set('Content-Type', 'application/json')
+		.send()
+		.end((err, res) => {
+			expect(res.text).to.include('dependency_up{name="Fake dependency 1"} 1')
+			expect(res.text).to.include('dependency_up{name="Fake dependency 2"} 0')
+    })
+  })
 });

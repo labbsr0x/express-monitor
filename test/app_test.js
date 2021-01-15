@@ -8,6 +8,12 @@ const app = express()
 
 Monitor.init(app, true)
 
+// inits a routine to expose health metrics with no loop
+Monitor.watchDependenciesLoopOf((register) => {
+  register({ name: "Fake dependency 1", up: true});
+  register({ name: "Fake dependency 2", up: false});
+});
+
 app.get('/test', (req, res) => {
 	res.status(200)
 	res.send('test')
