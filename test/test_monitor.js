@@ -18,7 +18,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -38,7 +38,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -58,7 +58,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -78,7 +78,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -98,7 +98,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -118,7 +118,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -138,7 +138,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -158,7 +158,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -178,7 +178,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -198,14 +198,14 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-        if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		await chai.request(app)
 			.get('/metrics')
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err, res) => {
-        expect(res.text).to.include('request_seconds_bucket{le="0.1",type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""} 1')
+				expect(res.text).to.include('request_seconds_bucket{le="0.1",type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""} 1')
 				expect(res.text).to.include('request_seconds_sum{type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""}')
 				expect(res.text).to.include('request_seconds_count{type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""} 1')
 				expect(res.text).to.include('response_size_bytes{type="http",status="404",method="POST",addr="/app/unregistered-path",isError="true",errorMessage=""}')
@@ -218,7 +218,7 @@ describe('Collect metrics middleware', () => {
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		await chai.request(app)
 			.get('/metrics')
@@ -232,99 +232,99 @@ describe('Collect metrics middleware', () => {
 			})
 	})
 
-  it('should collect depedency metric', async() => {
-    const start = process.hrtime()
-    const response = await axios.get('http://google.com/')
-    const { method, path } = response.request
-    Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
-    chai.request(app)
-    .get('/metrics')
-    .set('Content-Type', 'application/json')
-    .send()
-    .end((err, res) => {
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.3",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="1.5",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="10.5",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="+Inf",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
-      expect(res.text).to.include('dependency_request_seconds_sum{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_count{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
-    })
-  });
+	it('should collect depedency metric', async () => {
+		const start = process.hrtime()
+		const response = await axios.get('http://google.com/')
+		const { method, path } = response.request
+		Monitor.collectDependencyTime("Google", "axios", response.status, method, path, "", start)
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="0.3",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="1.5",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="10.5",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="+Inf",name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
+				expect(res.text).to.include('dependency_request_seconds_sum{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_count{name="Google",type="axios",status="200",method="GET",addr="/",isError="false",errorMessage=""} 1')
+			})
+	});
 
-  it('should set isError to false when not contains error message - collectDependencyTime', async() => {
-    const start = process.hrtime()
-    Monitor.collectDependencyTime("dependencyNameTest", "fooType", 304, "GET", "/test", "", start)
-    chai.request(app)
-	  .get('/metrics')
-	  .set('Content-Type', 'application/json')
-	  .send()
-	  .end((err, res) => {
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_sum{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="false",errorMessage=""}')
-      expect(res.text).to.include('dependency_request_seconds_count{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="false",errorMessage=""} 1')
-    })
-  })
+	it('should set isError to false when not contains error message - collectDependencyTime', async () => {
+		const start = process.hrtime()
+		Monitor.collectDependencyTime("dependencyNameTest", "fooType", 304, "GET", "/test", "", start)
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_sum{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="false",errorMessage=""}')
+				expect(res.text).to.include('dependency_request_seconds_count{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="false",errorMessage=""} 1')
+			})
+	})
 
-  it('should set isError to true when contains error message - collectDependencyTime', async() => {
-    const start = process.hrtime()
-    const errorMessage = "Foo error"
-    Monitor.collectDependencyTime("dependencyNameTest", "fooType", 304, "GET", "/test", errorMessage, start)
-    chai.request(app)
-	  .get('/metrics')
-	  .set('Content-Type', 'application/json')
-	  .send()
-	  .end((err, res) => {
-      expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"}')
-      expect(res.text).to.include('dependency_request_seconds_sum{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"}')
-      expect(res.text).to.include('dependency_request_seconds_count{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"} 1')
-    })
-  })
+	it('should set isError to true when contains error message - collectDependencyTime', async () => {
+		const start = process.hrtime()
+		const errorMessage = "Foo error"
+		Monitor.collectDependencyTime("dependencyNameTest", "fooType", 304, "GET", "/test", errorMessage, start)
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('dependency_request_seconds_bucket{le="0.1",name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"}')
+				expect(res.text).to.include('dependency_request_seconds_sum{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"}')
+				expect(res.text).to.include('dependency_request_seconds_count{name="dependencyNameTest",type="fooType",status="304",method="GET",addr="/test",isError="true",errorMessage="Foo error"} 1')
+			})
+	})
 
-  it('should collect non express request', async () => {
-  	const start = process.hrtime();
+	it('should collect non express request', async () => {
+		const start = process.hrtime();
 
-  	const fakeInternalProcess = await new Promise(resolve => setTimeout(resolve, 50));
-  	Monitor.collectRequestTime('amqp', 200, 'queue_to_test', start);
+		const fakeInternalProcess = await new Promise(resolve => setTimeout(resolve, 50));
+		Monitor.collectRequestTime('amqp', 200, 'queue_to_test', start);
 
-  	chai.request(app)
-	  .get('/metrics')
-	  .set('Content-Type', 'application/json')
-	  .send()
-	  .end((err, res) => {
-		  expect(res.text).to.include('request_seconds_bucket{le="0.1",type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""} 1');
-		  expect(res.text).to.include('request_seconds_sum{type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""}');
-		  expect(res.text).to.include('request_seconds_count{type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""} 1');
-	  })
-  });
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('request_seconds_bucket{le="0.1",type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""} 1');
+				expect(res.text).to.include('request_seconds_sum{type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""}');
+				expect(res.text).to.include('request_seconds_count{type="amqp",status="200",method="",addr="queue_to_test",isError="false",errorMessage=""} 1');
+			})
+	});
 
-  it('should collect non express request with error', async () => {
-  	const start = process.hrtime();
+	it('should collect non express request with error', async () => {
+		const start = process.hrtime();
 
-  	try{
-  		await new Promise((_, reject) => setTimeout(() => reject('dummy error'), 30));
-    }catch (err) {
-      Monitor.collectRequestTime('amqp', 500, 'queue_to_test', start, err)
-    }
+		try {
+			await new Promise((_, reject) => setTimeout(() => reject('dummy error'), 30));
+		} catch (err) {
+			Monitor.collectRequestTime('amqp', 500, 'queue_to_test', start, err)
+		}
 
-  	chai.request(app)
-	  .get('/metrics')
-	  .set('Content-Type', 'application/json')
-	  .send()
-	  .end((err, res) => {
-		  expect(res.text).to.include('request_seconds_bucket{le="0.1",type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"} 1');
-		  expect(res.text).to.include('request_seconds_sum{type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"}');
-		  expect(res.text).to.include('request_seconds_count{type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"} 1');
-	  })
-  })
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('request_seconds_bucket{le="0.1",type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"} 1');
+				expect(res.text).to.include('request_seconds_sum{type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"}');
+				expect(res.text).to.include('request_seconds_count{type="amqp",status="500",method="",addr="queue_to_test",isError="true",errorMessage="dummy error"} 1');
+			})
+	})
 
-  it('should collect swagger-express-middleware metrics', () => {
+	it('should collect swagger-express-middleware metrics', () => {
 		chai.request(app)
 			.get('/users/123')
 			.set('Content-Type', 'application/json')
 			.send()
 			.end((err) => {
-				if(err) console.log(err)
+				if (err) console.log(err)
 			})
 		chai.request(app)
 			.get('/metrics')
@@ -335,6 +335,25 @@ describe('Collect metrics middleware', () => {
 				expect(res.text).to.include('request_seconds_sum{type="http",status="200",method="GET",addr="/users/{userId}",isError="false",errorMessage=""}')
 				expect(res.text).to.include('request_seconds_count{type="http",status="200",method="GET",addr="/users/{userId}",isError="false",errorMessage=""} 1')
 				expect(res.text).to.include('response_size_bytes{type="http",status="200",method="GET",addr="/users/{userId}",isError="false",errorMessage=""}')
-      })
-  })
+			})
+	})
+
+
+	it('should collect healthcheck metrics', () => {
+		chai.request(app)
+			.get('/healthcheck')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err) => {
+				if (err) console.log(err)
+			})
+		chai.request(app)
+			.get('/metrics')
+			.set('Content-Type', 'application/json')
+			.send()
+			.end((err, res) => {
+				expect(res.text).to.include('dependency_up{name="Fake dependency 1"} 1')
+				expect(res.text).to.include('dependency_up{name="Fake dependency 2"} 0')
+			})
+	})
 });

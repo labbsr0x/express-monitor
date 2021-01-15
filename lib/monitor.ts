@@ -9,6 +9,7 @@ export type Monitor = {
     init (app: express.Application, shouldCollectDefaultMetrics: boolean, buckets?: number[], version?: string, isErrorCallback?:isErrorCallback, metricsEndpoint?: string):void;
     promclient: typeof import("prom-client");
     watchDependencies(healthCheckCallback: HealthCheckCallback):void;
+    watchDependenciesLoopOf(healthCheckCallback: HealthCheckCallback):void;
     collectDependencyTime(name: string, type: string, statusCode: number, method: string, addr: string, errorMessage: string, start: [number, number]):void;
     collectRequestTime(type: string, statusCode: number, addr: string, start: [number, number], errorMessage?: string): void;
     getAddress(request: express.Request):string;
@@ -243,21 +244,29 @@ function init(app: express.Application, shouldCollectDefaultMetrics?: boolean, b
  * Inits a routine to periodically watch the health of the app's dependencies.
  * Needs to return a valid array of HealthCheckResult.
  * @param {HealthCheckCallback} healthCheck
- * @param {boolean} loopHealthCheck a boolean parameter to deactivate loop healthcheck
  */
-function watchDependencies(healthCheck: HealthCheckCallback, loopHealthCheck=true) {
+function watchDependencies(healthCheck: HealthCheckCallback) {
     if (typeof healthCheck === 'function') {
 
-        if(loopHealthCheck) {
-            setInterval(() => {
-                healthCheck(registerDependencyMetrics);
-            }, 15000);
-        } else {
-            healthCheck(registerDependencyMetrics)
-        }
+        setInterval(() => {
+            healthCheck(registerDependencyMetrics);
+        }, 15000);
 
     } else {
         console.log("[Express Monitor][Watch Dependencies]: healthCheck callback needs to be a valid function")
+    }
+}
+
+/**
+ * Inits a routine to register the health of the app's dependencies.
+ * Needs to return a valid array of HealthCheckResult.
+ * @param {HealthCheckCallback} healthCheck
+ */
+function watchDependenciesLoopOf(healthCheck: HealthCheckCallback) {
+    if (typeof healthCheck === 'function') {
+        healthCheck(registerDependencyMetrics)
+    } else {
+        console.log("[Express Monitor][Watch Dependencies Loop Of]: healthCheck callback needs to be a valid function")
     }
 }
 
@@ -274,6 +283,7 @@ function registerDependencyMetrics(result: HealthCheckResult): void {
     init,
     promclient,
     watchDependencies,
+    watchDependenciesLoopOf,
     collectDependencyTime,
     collectRequestTime,
     getAddress
